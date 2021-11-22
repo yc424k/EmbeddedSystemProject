@@ -2,15 +2,14 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
 
-//rx, tx : 13, 12
+//RX(수신), TX(송신) : 12, 13
 
 //모터 사용
 Servo myservo_1;
 Servo myservo_3;
 int pos_1 = 0;
 int pos_3 = 0;
-int signal = 0;
-int degree = 45;
+int degree = 90;
 
 //시간 측정
 unsigned long l1 = 0, l2 = 0;
@@ -20,7 +19,7 @@ int Time1, Time3;
 //신호 및 통신
 SoftwareSerial mySerial(12, 13); //시리얼 통신 핀
 unsigned long Switch;
-byte c;
+byte signal;
 
 //초음파 센서
 const int pinTrig_1 = 4;
@@ -52,13 +51,11 @@ void setup()
 
 void loop()
 {
-    l2 = millis();
-
-    if (mySerial.available() > 0) //데이터가 수신되는지 확인
+    if (mySerial.available())
     {
-        c = mySerial.read(); //1바이트 읽음
-        mySerial.println(c); //1바이트 읽은거 출력
+        signal = mySerial.read();
     }
+    l2 = millis();
 
     //초음파 보내며, 다 보내면 echo가 HIGH(신호받기) 상태로 대기
     digitalWrite(pinTrig_1, LOW);
@@ -77,11 +74,13 @@ void loop()
     L_3 = T_3 / 58.82; //3번 초음파 센서로 거리 측정
 
     ///////////////////////////
-    //딜레마존 구현부
-
+    //시간절약 구현부
+    //통신은 I2C 사용
     //차량이 범위내에 없으면
     if (L_1 < rangeMax)
     {
+        //5초가 지날때까지 차가 감지 되지 않으면 바꿔도 된다는 신호 전송
+        Time1 = 0;
         //시간 측정
         if (l2 - l1 >= interval)
         {
@@ -96,6 +95,8 @@ void loop()
     }
     if (!(L_3 < rangeMax))
     {
+        //5초가 지날때까지 차가 감지 되지 않으면 바꿔도 된다는 신호 전송
+        Time3 = 0;
         //시간 측정
         if (l2 - l1 >= interval)
         {
@@ -111,59 +112,52 @@ void loop()
 
     ///////////////////////////
     //바리게이트 작동 구현부
-    //신호 받고 스위치 케이스에 넣어야됨
-    switch (c)
+    //UART 통신 사용
+    switch (signal)
     {
     case '1':
         if (l2 - l1 >= interval)
         {
             l1 = l2;
             Time1++;
-            if (Time1 >= 1 && Time1 < 2)
+            //1번 바리게이트 올라옴
+            if (Time1 < 2)
             {
-                //1번 바리게이트 올라옴
-                for (pos_1 = 0; pos_1 <= degree; pos_1 += 1)
-                {
-                    myservo_1.write(pos_1);
-                }
+                myservo_1.write(180);
             }
-            else if (Time1 >= 3)
+            //1번 바리게이트 내려옴
+            else if (Time1 > 4 && Time1 <= 6)
             {
-                //1번 바리게이트 내려옴
-                for (pos_1 = 0; pos_1 <= degree; pos_1 -= 1)
-                {
-                    myservo_1.write(pos_1);
-                }
-                l1 = 0;
+                myservo_1.write(90);
+            }
+            else if (Time1 > 6)
+            {
+                signal = '3';
                 Time3 = 0;
-                break;
             }
+            break;
         }
-        break;
     case '3':
         if (l2 - l1 >= interval)
         {
             l1 = l2;
             Time3++;
-            if (Time3 >= 1 && Time3 < 2)
+            //3번 바리게이트 올라옴
+            if (Time3 < 2)
             {
-                //3번 바리게이트 올라옴
-                for (pos_3 = 0; pos_3 <= degree; pos_3 += 1)
-                {
-                    myservo_3.write(pos_3);
-                }
+                myservo_3.write(180);
             }
-            else if (Time1 >= 3)
+            //1번 바리게이트 내려옴
+            else if (Time3 > 4 && Time3 <= 6)
             {
-                //3번 바리게이트 내려옴
-                for (pos_3 = 0; pos_3 <= degree; pos_3 -= 1)
-                {
-                    myservo_3.write(pos_3);
-                }
-                l1 = 0;
+                myservo_3.write(90);
+            }
+            else if (Time3 > 6)
+            {
+                signal = '1';
                 Time1 = 0;
-                break;
             }
+            break;
         }
     }
 }

@@ -9,7 +9,7 @@ Servo myservo_1;
 Servo myservo_3;
 int pos_1 = 0;
 int pos_3 = 0;
-int Signal = 0;
+byte Signal = '0';
 int degree = 45;
 
 //시간 측정
@@ -118,39 +118,21 @@ void loop()
     //바리게이트 작동 구현부
     switch (Signal)
     {
-    case 1:
-        if (l2 - l1 >= interval)
-        {
-            l1 = l2;
-            Time1++;
-
-            //1번 바리게이트 올라옴
-
-            myservo_1.write(90);
-
-            //1번 바리게이트 내려옴
-
-            myservo_1.write(180);
-        }
+    case '2':
+        //2번 바리게이트 올라옴
+        myservo_2.write(90);
+        delay(1000);
+        //2번 바리게이트 내려옴
+        myservo_2.write(180);
+        mySerial.write('3');
         break;
-    case 3:
-        if (l2 - l1 >= interval)
-        {
-            l1 = l2;
-            Time3++;
-            if (Time3 >= 1 && Time3 < 2)
-            {
-                //1번 바리게이트 올라옴
-
-                myservo_3.write(90);
-            }
-            else if (Time1 >= 3)
-            {
-                //1번 바리게이트 내려옴
-
-                myservo_3.write(180);
-            }
-        }
+    case '4':
+        //4번 바리게이트 올라옴
+        myservo_4.write(90);
+        delay(1000);
+        //4번 바리게이트 내려옴
+        myservo_4.write(180);
+        mySerial.write('1');
         break;
     }
 }

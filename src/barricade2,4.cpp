@@ -9,8 +9,7 @@ Servo myservo_1;
 Servo myservo_3;
 int pos_1 = 0;
 int pos_3 = 0;
-int signal = 0;
-int degree = 45;
+int degree = 90;
 
 //시간 측정
 unsigned long l1 = 0, l2 = 0;
@@ -20,7 +19,7 @@ int Time1, Time3;
 //신호 및 통신
 SoftwareSerial mySerial(12, 13); //시리얼 통신 핀
 unsigned long Switch;
-byte c;
+byte signal;
 
 //초음파 센서
 const int pinTrig_1 = 4;
@@ -52,13 +51,11 @@ void setup()
 
 void loop()
 {
-    l2 = millis();
-
-    if (mySerial.available() > 0) //데이터가 수신되는지 확인
+    if (mySerial.available())
     {
-        char ch = mySerial.read(); //1바이트 읽음
-        mySerial.println(ch);      //1바이트 읽은거 출력
+        signal = mySerial.read();
     }
+    l2 = millis();
 
     //초음파 보내며, 다 보내면 echo가 HIGH(신호받기) 상태로 대기
     digitalWrite(pinTrig_1, LOW);
@@ -113,53 +110,24 @@ void loop()
 
     ///////////////////////////
     //바리게이트 작동 구현부
-    switch (signal)
+    //UART 통신 사용
+    switch (Signal)
     {
-    case 1:
-        if (l2 - l1 >= interval)
-        {
-            l1 = l2;
-            Time1++;
-            if (Time1 >= 1 && Time1 < 2)
-            {
-                //1번 바리게이트 올라옴
-                for (pos_1 = 0; pos_1 <= degree; pos_1 += 1)
-                {
-                    myservo_1.write(pos_1);
-                }
-            }
-            else if (Time1 >= 3)
-            {
-                //1번 바리게이트 내려옴
-                for (pos_1 = 0; pos_1 <= degree; pos_1 -= 1)
-                {
-                    myservo_1.write(pos_1);
-                }
-            }
-        }
+    case '2':
+        //2번 바리게이트 올라옴
+        myservo_2.write(degree);
+        delay(1000);
+        //2번 바리게이트 내려옴
+        myservo_2.write(degree + 90);
+        mySerial.write('3');
         break;
-    case 3:
-        if (l2 - l1 >= interval)
-        {
-            l1 = l2;
-            Time3++;
-            if (Time3 >= 1 && Time3 < 2)
-            {
-                //1번 바리게이트 올라옴
-                for (pos_3 = 0; pos_3 <= degree; pos_3 += 1)
-                {
-                    myservo_3.write(pos_3);
-                }
-            }
-            else if (Time1 >= 3)
-            {
-                //1번 바리게이트 내려옴
-                for (pos_3 = 0; pos_3 <= degree; pos_3 -= 1)
-                {
-                    myservo_3.write(pos_3);
-                }
-            }
-        }
+    case '4':
+        //4번 바리게이트 올라옴
+        myservo_4.write(degree);
+        delay(1000);
+        //4번 바리게이트 내려옴
+        myservo_4.write(degree + 90);
+        mySerial.write('1');
         break;
     }
 }
