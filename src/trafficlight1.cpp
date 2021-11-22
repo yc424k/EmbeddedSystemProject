@@ -1,6 +1,6 @@
-#include <Adafruit_NeoPixel.h>
-#include <SoftwareSerial.h>
-SoftwareSerial mySerial(12, 13);
+#include <Adafruit_NeoPixel.h> //네오픽셀
+#include <Wire.h> //I2C 통신
+#define sv 8
 #define CAR_PIN1 2 //차량
 #define CAR_PIN2 5
 #define PEO_PIN1 3 //횡단보도
@@ -23,11 +23,11 @@ Adafruit_NeoPixel pixels7(4, DLE_PIN1, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel pixels8(4, DLE_PIN2, NEO_GRB + NEO_KHZ800);
 
 void setup() {
+  Wire.begin(); //I2C 시작
   Time1=0;
   Time3=0;
   Time5=0;
   l1=0;
-  mySerial.begin(9600);
   pixels1.begin();  //네오픽셀 시작
   pixels2.begin();
   pixels3.begin();
@@ -48,10 +48,12 @@ void setup() {
   pixels6.show();
 }
 void loop() {
+  Wire.beginTransmission(sv); //slave 한테 보내겠다고 하는 거
+  Wire.requestFrom(sv,1); // 받겠다고 하는거 1바이트
   l2=millis();
-  if (mySerial.available()) {
-  c = mySerial.read();
-  }
+  if(Wire.available()){
+      c = Wire.read();
+    }
   switch(c){
   case '1': //차향
     if(l2-l1 >= interval){
@@ -65,7 +67,7 @@ void loop() {
       if(Time1>5){  //5초에서 10초사이에 딜레마 LED ON
         theaterChase(512,2); //깜박이는 함수
       }
-      }else if(Time1>10 && Time1 <= 15{ //10초부터 5초동안 주황색 LED ON
+      }else if(Time1>10 && Time1 <= 15){ //10초부터 5초동안 주황색 LED ON
         pixels1.clear();
         pixels1.setPixelColor(2,255,215,0);
         pixels1.show();
@@ -73,7 +75,7 @@ void loop() {
         pixels1.clear();
         pixels1.setPixelColor(3,255,0,0);
         pixels1.show();
-        mySerial.write('2'); //송신
+        Wire.write('2'); //송신
         l1=0;
         Time3=0;
         break;
@@ -99,7 +101,7 @@ void loop() {
         pixels2.clear();
         pixels2.setPixelColor(3,255,0,0);
         pixels2.show();
-        mySerial.write('4'); //송신
+        Wire.write('4'); //송신
         l1=0;
         Time5=0;
         break;
