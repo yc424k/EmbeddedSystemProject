@@ -14,8 +14,12 @@ oooooooooo|                 |oooooooooo
 oooooooooo|                 |oooooooooo
 oooooooooo|        3        |oooooooooo
 
+1,3번 바리 : SPI 슬레이브, UART 마스터
+2,4번 바리 : UART 슬레이브
+
  < UART(바리 to 바리) >
--> n번 빨간불 -> n번 바리 올/내
+-> 1,3 번에서 SPI 신호 받아서 2,4번에 UART로 송신
+n번 빨간불 -> n번 바리 올/내
 
  < 초음파 >
  -> 차량이 감지X -> 5초간 감지 안되면 딜레마 신호 보냄

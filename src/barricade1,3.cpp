@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include <SoftwareSerial.h>
+#include <SPI.h>
 
 //RX(수신), TX(송신) : 12, 13
 
@@ -20,6 +21,11 @@ int Time1, Time3;
 SoftwareSerial mySerial(12, 13); //시리얼 통신 핀
 unsigned long Switch;
 byte signal;
+
+//SPI 통신
+char buf[100];
+volatile byte pos = 0;
+volatile boolean done = false;
 
 //초음파 센서
 const int pinTrig_1 = 4;
@@ -47,13 +53,33 @@ void setup()
     pinMode(pinEcho_1, INPUT);
     pinMode(pinTrig_3, OUTPUT);
     pinMode(pinEcho_3, INPUT);
+
+    //SPI 통신
+    SPI.setClockDivider(SPI_CLOCK_DIV16);
+    pinMode(MISO, OUTPUT);
+    SPCR |= _BV(SPE);
+    SPCR |= _BV(SPIE);
+    SPCR &= ~_BV(MSTR);
+}
+
+ISR(SPI_STC_vect)
+{
+    byte c = SPDR;
+    if (pos < sizeof(buf))
+    {
+        buf[pos++] = c;
+        if (c == '\n')
+            done = true;
+    }
 }
 
 void loop()
 {
-    if (mySerial.available())
-    {
-        signal = mySerial.read();
+    if (done)
+    { // 마스터
+        buf[pos] = 0;
+        pos = 0;
+        done = false;
     }
     l2 = millis();
 
@@ -113,6 +139,16 @@ void loop()
     ///////////////////////////
     //바리게이트 작동 구현부
     //UART 통신 사용
+    //마스터한테 바리게이트 올려 신호 받으면 올리기
+    if ()
+    {
+        mySerial.write('2');
+    }
+    else if ()
+    {
+        mySerial.write('4');
+    }
+
     switch (signal)
     {
     case '1':
@@ -132,7 +168,6 @@ void loop()
             }
             else if (Time1 > 6)
             {
-                signal = '3';
                 Time3 = 0;
             }
             break;
@@ -154,7 +189,6 @@ void loop()
             }
             else if (Time3 > 6)
             {
-                signal = '1';
                 Time1 = 0;
             }
             break;
