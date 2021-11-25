@@ -83,17 +83,22 @@ void loop()
     }
     l2 = millis();
 
-    //초음파 보내며, 다 보내면 echo가 HIGH(신호받기) 상태로 대기
+    //1번 초음파 보내며, 다 보내면 echo가 HIGH(신호받기) 상태로 대기
     digitalWrite(pinTrig_1, LOW);
-    digitalWrite(pinTrig_3, LOW);
     delayMicroseconds(2);
     digitalWrite(pinTrig_1, HIGH);
-    digitalWrite(pinTrig_3, HIGH);
     delayMicroseconds(10);
     digitalWrite(pinTrig_1, LOW);
-    digitalWrite(pinTrig_3, LOW);
 
     T_1 = pulseIn(pinEcho_1, HIGH);
+
+    //3번 초음파 보내며, 다 보내면 echo가 HIGH(신호받기) 상태로 대기
+    digitalWrite(pinTrig_3, LOW);
+    delayMicroseconds(2);
+    digitalWrite(pinTrig_3, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(pinTrig_3, LOW);
+
     T_3 = pulseIn(pinEcho_3, HIGH);
 
     L_1 = T_1 / 58.82; //1번 초음파 센서로 거리 측정
