@@ -15,7 +15,7 @@ int A = 0, B = 0, C = 0, D = 0;
 
 //시간 측정
 unsigned long l1 = 0, l2 = 0;
-unsigned long interval = 2048;
+unsigned long interval = 1024;
 int Time1, Time4;
 
 //신호 및 통신
@@ -38,7 +38,7 @@ void setup()
     mySerial.begin(9600);
 
     Time1 = 0;
-    Time3 = 0;
+    Time4 = 0;
     l1 = 0;
 
     //모터 사용
@@ -72,20 +72,11 @@ void loop()
     if (command == 'a' || command == 'b' || command == 'c' || command == 'd')
     {
         kind = command;
-        if (kind == 'a' && A == 1)
-            A = 0;
-        else if (kind == 'b' && B == 1)
-            B = 0;
-        else if (kind == 'c' && C == 1)
-            C = 0;
-        else if (kind == 'd' && D == 1)
-            D = 0;
-    }
-    if (l2 - l1 >= interval)
-    {
-        l1 = l2;
         mySerial.write(kind);
-        Serial.println(kind);
+        if (kind == 'a' && A == 0)
+            A = 1;
+        else if (kind == 'd' && D == 0)
+            D = 1;
     }
 
     //    ///////////////////////////
@@ -102,12 +93,13 @@ void loop()
             {
                 l1 = l2;
                 Time1++;
-                if (Time1 < 1)
+
+                if (Time1 <= 1)
                 {
-                    Serial.println("B확인");
+                    Serial.println("A확인");
                     myservo_1.write(180);
                 }
-                else if (Time1 >= 1 && Time1 < 3)
+                else if (Time1 > 1 && Time1 < 3)
                 {
                     myservo_1.write(90);
                 }
@@ -121,7 +113,6 @@ void loop()
                 }
             }
         }
-
     case 'd':
         l2 = millis();
         if (l2 - l1 >= interval)
@@ -132,7 +123,7 @@ void loop()
                 Time4++;
                 if (Time4 < 1)
                 {
-                    Serial.println("C확인");
+                    Serial.println("D확인");
                     myservo_4.write(180);
                 }
                 else if (Time4 >= 1 && Time4 < 3)

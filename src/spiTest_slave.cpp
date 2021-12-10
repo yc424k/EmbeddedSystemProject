@@ -16,21 +16,18 @@ ISR(SPI_STC_vect)
     byte c = SPDR;
     switch (command)
     {
-    case '0':
+    case 0:
         command = c;
         SPDR = 0;
         break;
-    case 'c':
-        SPDR = data;
-        break;
-    case 'signal':
+    case 's':
         SPDR = data;
         break;
     }
 }
 void loop()
 {
-    data = '1';
+    data = 0;
     if (digitalRead(SS) == HIGH)
         command = 0;
 }

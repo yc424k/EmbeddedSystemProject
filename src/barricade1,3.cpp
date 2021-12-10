@@ -3,7 +3,7 @@
 #include <SoftwareSerial.h>
 #include <SPI.h>
 
-//RX(수신), TX(송신) : 12, 13
+//RX(수신), TX(송신) : 0,1
 
 //모터 사용
 Servo myservo_1;
@@ -120,7 +120,7 @@ void loop()
             if (Time1 > 5)
             {
                 //차량이 없으니 신호를 미리 바꿔도 된다는 신호 전송
-                mySerial.write('불켜');
+                mySerial.write('5');
             }
         }
     }
@@ -136,24 +136,15 @@ void loop()
             if (Time3 > 5)
             {
                 //차량이 없으니 신호를 미리 바꿔도 된다는 신호 전송
-                mySerial.write('불켜');
+                mySerial.write('7');
             }
         }
     }
 
     ///////////////////////////
     //바리게이트 작동 구현부
-    //UART 통신 사용
+    //UART 통신 사용?
     //마스터한테 바리게이트 올려 신호 받으면 올리기
-    if ()
-    {
-        mySerial.write('2');
-    }
-    else if ()
-    {
-        mySerial.write('4');
-    }
-
     switch (signal)
     {
     case '1':
