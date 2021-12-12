@@ -1,13 +1,11 @@
 #include <SPI.h>
 const int s1 = 10;
 const int s2 = 9;
-int mode = 0;
-byte c, s;
+byte c = '0', s = '0';
 
 //시간 측정
 unsigned long l1 = 0, l2 = 0;
-unsigned long interval = 512;
-double Time;
+unsigned long interval = 128;
 void setup()
 {
     Serial.begin(9600);
@@ -17,8 +15,6 @@ void setup()
     digitalWrite(s1, HIGH);
     digitalWrite(s2, HIGH);
     SPI.setClockDivider(SPI_CLOCK_DIV16);
-    Time = 0;
-    l1 = 0;
 }
 byte transferAndWait(const byte what)
 {
@@ -34,17 +30,37 @@ void loop()
     {
         l1 = l2;
         digitalWrite(s1, LOW);
+        if (s == '1')
+        {
+            Serial.println("1");
+            transferAndWait('a');
+        }
+        else if (s == '2')
+        {
+            Serial.println("2");
+            transferAndWait('b');
+            transferAndWait(0);
+        }
+        else if (s == '3')
+        {
+            Serial.println("3");
+            transferAndWait('d');
+            transferAndWait(0);
+        }
+        else if (s == '4')
+        {
+            Serial.println("4");
+            transferAndWait('e');
+            transferAndWait(0);
+        }
+        transferAndWait(0);
+
         transferAndWait('c');
         transferAndWait(0);
         c = transferAndWait(0);
-        if (s == '1' || s == '2' || s == '3' || s == '4')
-        {
-            transferAndWait(s);
-            transferAndWait(0);
-        }
+
         digitalWrite(s1, HIGH);
 
-        Serial.println(c);
         digitalWrite(s2, LOW);
         switch (c)
         {
@@ -65,8 +81,6 @@ void loop()
             transferAndWait(0);
             break;
         }
-        transferAndWait('l');
-        transferAndWait(0);
         s = transferAndWait(0);
         digitalWrite(s2, HIGH);
     }

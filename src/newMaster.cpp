@@ -2,12 +2,11 @@
 const int s1 = 10;
 const int s2 = 9;
 int mode = 0;
-byte c, s;
+byte c, s = 0;
 
 //시간 측정
 unsigned long l1 = 0, l2 = 0;
 unsigned long interval = 512;
-double Time;
 void setup()
 {
     Serial.begin(9600);
@@ -17,8 +16,6 @@ void setup()
     digitalWrite(s1, HIGH);
     digitalWrite(s2, HIGH);
     SPI.setClockDivider(SPI_CLOCK_DIV16);
-    Time = 0;
-    l1 = 0;
 }
 byte transferAndWait(const byte what)
 {
@@ -37,14 +34,8 @@ void loop()
         transferAndWait('c');
         transferAndWait(0);
         c = transferAndWait(0);
-        if (s == '1' || s == '2' || s == '3' || s == '4')
-        {
-            transferAndWait(s);
-            transferAndWait(0);
-        }
         digitalWrite(s1, HIGH);
 
-        Serial.println(c);
         digitalWrite(s2, LOW);
         switch (c)
         {
@@ -65,9 +56,6 @@ void loop()
             transferAndWait(0);
             break;
         }
-        transferAndWait('l');
-        transferAndWait(0);
-        s = transferAndWait(0);
         digitalWrite(s2, HIGH);
     }
 }
